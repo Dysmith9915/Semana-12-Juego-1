@@ -1,0 +1,60 @@
+class Personaje:
+    def __init__(self, nombre, vida, ataque, defensa):
+        self.__nombre = nombre
+        self.__vida = max(0, min(vida, 100))  # La vida debe estar entre 0 y 100
+        self.__ataque = ataque
+        self.__defensa = defensa
+    
+    @property
+    def vida(self):
+        return self.__vida
+    
+    @vida.setter
+    def vida(self, valor):
+        self.__vida = max(0, min(valor, 100))  # Validación de vida
+    
+    @property
+    def nombre(self):
+        return self.__nombre
+
+    def atacar(self, objetivo):
+        daño = max(0, self.__ataque - objetivo.__defensa)
+        objetivo.vida -= daño
+        print(f"{self.__nombre} ataca a {objetivo.nombre} causando {daño} de daño.")
+        print(f"{objetivo.nombre} ahora tiene {objetivo.vida} de vida.")
+
+class Guerrero(Personaje):
+    def atacar(self, objetivo):
+        daño = max(0, int(self._Personaje__ataque * 1.2) - objetivo._Personaje__defensa)  # 20% más de daño
+        objetivo.vida -= daño
+        print(f"{self.nombre} realiza un ataque poderoso contra {objetivo.nombre}, causando {daño} de daño.")
+        print(f"{objetivo.nombre} ahora tiene {objetivo.vida} de vida.")
+
+class Mago(Personaje):
+    def atacar(self, objetivo):
+        daño = self._Personaje__ataque  # Ignora la defensa
+        objetivo.vida -= daño
+        print(f"{self.nombre} lanza un hechizo contra {objetivo.nombre}, causando {daño} de daño.")
+        print(f"{objetivo.nombre} ahora tiene {objetivo.vida} de vida.")
+
+class Arquero(Personaje):
+    def atacar(self, objetivo):
+        daño = self._Personaje__ataque
+        if daño > objetivo._Personaje__defensa:
+            daño *= 2  # Hace el doble de daño si supera la defensa
+        objetivo.vida -= daño
+        print(f"{self.nombre} dispara una flecha precisa a {objetivo.nombre}, causando {daño} de daño.")
+        print(f"{objetivo.nombre} ahora tiene {objetivo.vida} de vida.")
+
+# Simulación de la batalla
+guerrero = Guerrero("Guerrero", 100, 30, 20)
+mago = Mago("Mago", 80, 40, 10)
+
+while guerrero.vida > 0 and mago.vida > 0:
+    guerrero.atacar(mago)
+    if mago.vida <= 0:
+        print("El Mago ha sido derrotado. ¡El Guerrero gana!")
+        break
+    mago.atacar(guerrero)
+    if guerrero.vida <= 0:
+        print("El Guerrero ha sido derrotado. ¡El Mago gana!")
