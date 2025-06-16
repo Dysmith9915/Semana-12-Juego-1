@@ -1,0 +1,120 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class Personaje:
+    def __init__(self, nombre, vida, ataque, defensa):
+        self.__nombre = nombre
+        self.__vida = max(0, min(vida, 100))
+        self.__ataque = ataque
+        self.__defensa = defensa
+
+    @property
+    def nombre(self):
+        return self.__nombre
+
+    @property
+    def vida(self):
+        return self.__vida
+
+    @vida.setter
+    def vida(self, valor):
+        self.__vida = max(0, min(valor, 100))
+
+    @property
+    def ataque(self):
+        return self.__ataque
+
+    @property
+    def defensa(self):
+        return self.__defensa
+
+    def esta_vivo(self):
+        return self.__vida > 0
+
+class Guerrero(Personaje):
+    def atacar(self, objetivo):
+        daño = max(0, int(self.ataque * 1.2) - objetivo.defensa)
+        objetivo.vida -= daño
+        return f"{self.nombre} realiza un ataque poderoso contra {objetivo.nombre}, causando {daño} de daño."
+
+class Mago(Personaje):
+    def atacar(self, objetivo):
+        daño = self.ataque
+        objetivo.vida -= daño
+        return f"{self.nombre} lanza un hechizo contra {objetivo.nombre}, causando {daño} de daño."
+
+class Juego:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Combate: Guerrero vs Mago")
+
+        self.guerrero = Guerrero("Guerrero", 100, 30, 20)
+        self.mago = Mago("Mago", 80, 40, 10)
+
+        self.label_guerrero = tk.Label(root, text=f"{self.guerrero.nombre} - Vida: {self.guerrero.vida}", font=("Arial", 12))
+        self.label_guerrero.pack(pady=5)
+
+        self.label_mago = tk.Label(root, text=f"{self.mago.nombre} - Vida: {self.mago.vida}", font=("Arial", 12))
+        self.label_mago.pack(pady=5)
+
+        self.boton_guerrero = tk.Button(root, text="⚔️ Atacar con Guerrero", command=self.guerrero_ataca)
+        self.boton_guerrero.pack(pady=5)
+
+        self.boton_mago = tk.Button(root, text="🪄 Atacar con Mago", command=self.mago_ataca)
+        self.boton_mago.pack(pady=5)
+
+        self.boton_reiniciar = tk.Button(root, text="🔁 Reiniciar Juego", command=self.reiniciar_juego)
+        self.boton_reiniciar.pack(pady=5)
+
+        self.resultado = tk.Text(root, height=6, width=50)
+        self.resultado.pack(pady=10)
+
+    def actualizar_vida(self):
+        self.label_guerrero.config(text=f"{self.guerrero.nombre} - Vida: {self.guerrero.vida}")
+        self.label_mago.config(text=f"{self.mago.nombre} - Vida: {self.mago.vida}")
+
+    def mostrar_resultado(self, texto):
+        self.resultado.insert(tk.END, texto + "\n")
+        self.resultado.see(tk.END)
+
+    def guerrero_ataca(self):
+        if not self.guerrero.esta_vivo() or not self.mago.esta_vivo():
+            return
+        texto = self.guerrero.atacar(self.mago)
+        self.mostrar_resultado(texto)
+        self.actualizar_vida()
+        self.verificar_ganador()
+
+    def mago_ataca(self):
+        if not self.guerrero.esta_vivo() or not self.mago.esta_vivo():
+            return
+        texto = self.mago.atacar(self.guerrero)
+        self.mostrar_resultado(texto)
+        self.actualizar_vida()
+        self.verificar_ganador()
+
+    def verificar_ganador(self):
+        if not self.guerrero.esta_vivo():
+            messagebox.showinfo("Fin del combate", "¡El Mago ha ganado!")
+            self.deshabilitar_botones()
+        elif not self.mago.esta_vivo():
+            messagebox.showinfo("Fin del combate", "¡El Guerrero ha ganado!")
+            self.deshabilitar_botones()
+
+    def deshabilitar_botones(self):
+        self.boton_guerrero.config(state=tk.DISABLED)
+        self.boton_mago.config(state=tk.DISABLED)
+
+    def reiniciar_juego(self):
+        self.guerrero = Guerrero("Guerrero", 100, 30, 20)
+        self.mago = Mago("Mago", 80, 40, 10)
+        self.actualizar_vida()
+        self.resultado.delete(1.0, tk.END)
+        self.boton_guerrero.config(state=tk.NORMAL)
+        self.boton_mago.config(state=tk.NORMAL)
+
+# Ejecutar interfaz
+if __name__ == "__main__":
+    root = tk.Tk()
+    juego = Juego(root)
+    root.mainloop()
